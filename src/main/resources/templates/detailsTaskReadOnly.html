@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/layout.html">
+<head>
+    <title>Task Details</title>
+    <style>
+        .table th, .table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        .badge {
+            font-size: 14px;
+            padding: 5px 10px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-submit {
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-weight: bold;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .comment-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="mainFragment" class="container mt-4">
+    <div class="form-container">
+        <h3 class="text-center">View Task</h3>
+        <form >
+            <input type="hidden" name="id" th:value="${task.getId()}" readonly>
+
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <input type="text" th:value="${task.getTitle()}" name="title" class="form-control" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea name="description" cols="30" rows="5" class="form-control" th:text="${task.getDescription()}" readonly></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <input type="text" class="form-control" readonly
+                       th:value="${task.getStatus() == 0 ? 'TO DO' :
+                  task.getStatus() == 1 ? 'IN TEST' :
+                  task.getStatus() == 2 ? 'DONE' :
+                  'FAILED'}">
+
+            </div>
+
+        </form>
+
+        <div class="comment-box">
+            <h5 class="text-center">Comments</h5>
+
+            <div class="mt-3">
+                <div class="alert alert-secondary" th:each="comment: ${comments}">
+                    <p th:text="${comment.getComment()}" class="mb-0"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

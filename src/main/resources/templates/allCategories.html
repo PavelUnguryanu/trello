@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml"
+      layout:decorate="layout/layout.html">
+<head>
+    <title>Категории</title>
+    <style>
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        .table th {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-danger:hover {
+            background-color: #a71d2a;
+        }
+        .modal-body input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="mainFragment" class="container mt-4">
+    <div class="mb-3">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>NAME</th>
+                <th>FOLDERS</th>
+                <th>RENAME</th>
+                <th>DELETE</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="category: ${categories}">
+                <td th:text="${category.getId()}"></td>
+                <td th:text="${category.getName()}"></td>
+                <td th:text="${category.getTextFolder()}"></td>
+                <td>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            th:attr="data-bs-target='#renameFolder-' + ${category.getId()}">
+                        RENAME
+                    </button>
+                </td>
+                <!-- Modal -->
+                <div class="modal fade" th:id="'renameFolder-' + ${category.getId()}" tabindex="-1"
+                     aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Rename Category</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form th:action="@{/renameCategory}" method="post">
+                                <div class="modal-body">
+                                    <input type="hidden" name="id" th:value="${category.getId()}">
+                                    <input type="text" name="name" class="form-control" th:value="${category.getName()}" required maxlength="50">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <td>
+                    <a th:href="@{'/deleteCategory/' + ${category.getId()}}" class="btn btn-danger"
+                       onclick="return confirm('Are you sure you want to delete this category?');">
+                        DELETE
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

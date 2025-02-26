@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml"
+      layout:decorate="layout/layout.html">
+<head>
+    <title>Главная</title>
+    <style>
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Автоматическая адаптация колонок */
+            gap: 15px; /* Отступы между картинками */
+            justify-items: center; /* Выравнивание по центру */
+        }
+        .image-grid img {
+            width: 100%; /* Растягиваем на всю доступную ширину */
+            height: 200px; /* Фиксированная высота */
+            object-fit: cover; /* Обрезка изображений, чтобы они выглядели аккуратно */
+            border-radius: 10px; /* Округление краев */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Легкая тень */
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="mainFragment">
+    <div class="mb-3">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            + New Folder
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form class="form-control" method="post" th:action="@{/addFolder}">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">ADD NEW FOLDER</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                            <label>FOLDER NAME</label>
+                            <input type="text" name="folderName" class="form-control" required maxlength="50">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CLOSE</button>
+                        <button type="submit" class="btn btn-primary">ADD FOLDER</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="list-group" th:each="folder:${folders}">
+        <div class="list-group-item">
+            <h5 class="mb-1" th:text="${folder.getName()}"></h5>
+            <a th:href="@{'/detailsFolder/' + ${folder.getId()}}" class="btn btn-primary">Details</a>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
