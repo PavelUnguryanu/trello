@@ -1,6 +1,8 @@
 package kz.bitlab.trello.controller;
 
+import jakarta.servlet.http.HttpSession;
 import kz.bitlab.trello.model.Folders;
+import kz.bitlab.trello.model.Person;
 import kz.bitlab.trello.repository.FolderRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,11 +19,17 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String index(Model model){
+    public String index(Model model, HttpSession session){
         List<Folders> folders = folderRepository.findAll();
         if (folders != null){
             model.addAttribute("folders", folders);
         }
-        return "index";
+        Person person = (Person) session.getAttribute("person");
+        if (person == null){
+            return "redirect:/login";
+        } else {
+            return "index";
+        }
+
     }
 }
