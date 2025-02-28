@@ -1,0 +1,66 @@
+stages:
+  - gradle-build
+  - docker-build
+  - push
+  - deploy
+
+variables:
+  PROJECT_ID: "mythical-sweep-452208-c4"
+  IMAGE_NAME: "gcr.io/$PROJECT_ID/trello"
+  KUBE_CONTEXT: "gke_$PROJECT_ID_us-central1-a_my-cluster"
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: "tcp://docker:2375"
+
+gradle-build:
+  image: gradle:jdk22
+  stage: gradle-build
+  script:
+    - gradle clean build -x test
+  artifacts:
+    paths:
+      - build/libs/*.jar
+
+docker-build:
+  image: google/cloud-sdk:latest
+  services:
+    - docker:dind
+  stage: docker-build
+  before_script:
+    - echo $GCLOUD_SERVICE_KEY | base64 -d > key.json
+    - gcloud auth activate-service-account --key-file=key.json
+    - gcloud auth configure-docker
+  script:
+    - docker build -t $IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
+    - docker tag $IMAGE_NAME:$CI_COMMIT_SHORT_SHA $IMAGE_NAME:latest
+    - docker images  # Проверяем, есть ли образ
+  artifacts:
+    paths:
+      - /var/lib/docker  # Передаём Docker-образы в следующую стадию
+      - build/libs/*.jar
+
+push:
+  image: google/cloud-sdk:latest
+  services:
+    - docker:dind
+  stage: push
+  before_script:
+    - echo $GCLOUD_SERVICE_KEY | base64 -d > key.json
+    - gcloud auth activate-service-account --key-file=key.json
+    - gcloud auth configure-docker
+  script:
+    - docker images  # Проверяем, есть ли образ
+    - docker build -t $IMAGE_NAME:$CI_COMMIT_SHORT_SHA .  # Пересобираем образ, если он отсутствует
+    - docker tag $IMAGE_NAME:$CI_COMMIT_SHORT_SHA $IMAGE_NAME:latest
+    - docker push $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+    - docker push $IMAGE_NAME:latest
+
+deploy:
+  image: google/cloud-sdk:latest
+  stage: deploy
+  before_script:
+    - echo $GCLOUD_SERVICE_KEY | base64 -d > key.json
+    - gcloud auth activate-service-account --key-file=key.json
+    - gcloud auth configure-docker
+    - gcloud container clusters get-credentials my-cluster --zone us-central1-a --project $PROJECT_ID
+  script:
+    - kubectl set image deployment/trello trello=$IMAGE_NAME:latest
